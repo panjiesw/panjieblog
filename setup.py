@@ -41,7 +41,7 @@ setup(
     author='',
     author_email='',
     #url='',
-    setup_requires=["PasteScript >= 1.7", "sprox", "utils", "webhelpers"],
+    setup_requires=["PasteScript >= 1.7", "sprox", "utils", "webhelpers", "ming"],
     paster_plugins=['PasteScript', 'Pylons', 'TurboGears2'],
     packages=find_packages(exclude=['ez_setup']),
     install_requires=install_requires,

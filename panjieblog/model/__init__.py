@@ -9,7 +9,7 @@ def init_model(engine):
     mainsession.bind = engine
     ming.odm.Mapper.compile_all()
 
-    for mapper in ming.orm.Mapper.all_mappers():
+    for mapper in ming.odm.Mapper.all_mappers():
         mainsession.ensure_indexes(mapper.collection)
 
 # Import your model modules here.

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+    {% from 'admin/sidebar.html' import sidebar with context %}
     <head>
         <meta content="text/html; charset=UTF-8" http-equiv="Content-Type"
               content="{{ response.content_type }}; charset={{ response.charset }}"/>
@@ -8,6 +9,20 @@
         <title>PanjieSW Blog Admin Interface</title>
         <link rel="stylesheet" type="text/css" media="screen" href="{{ tg.url('/css/bootstrap.min.css') }}" />
         <link rel="stylesheet" type="text/css" media="screen" href="{{ tg.url('/css/bootstrap-responsive.min.css') }}" />
+        <style type="text/css">
+            body {
+                padding-top: 60px;
+                background-color: #d9d9d9;
+            }
+
+            .sidebar-nav {
+                padding: 9px 0;
+            }
+
+            .crd_table, .crd_edit, .crd_new,  #btn_new {
+                margin-top: 20px;
+            }
+        </style>
     </head>
     <body>
         <div class="navbar navbar-fixed-top">
@@ -30,5 +45,105 @@
                 </div>
             </div>
         </div>
+        <div class="container">
+            <div class="row-fluid">
+                <div class="span2">
+                    <div class="well sidebar-nav">
+                        {{ sidebar() }}
+                    </div>
+                </div>
+                <div class="span9">
+                    <div id="content_wrap" class="well">
+                        <h1>Hello World!!</h1>
+                        <p>This is the Administration System of PanjieSW Blog.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script type="text/javascript" src="{{ tg.url('/javascript/jquery-1.7.1.min.js') }}" ></script>
+        <script type="text/javascript" src="{{ tg.url('/javascript/bootstrap.min.js') }}" ></script>
+        <script type="text/javascript">
+            $(function(){
+                var last_active;
+                $('.sidelink').click(function(event){
+                    var url = this.href;
+                    if (last_active)    last_active.removeClass("active");
+                    $.get(
+                            url,
+                            function (data) {
+                                $('#content_wrap').html(data);
+                            }
+                    );
+                    $(this).parent().addClass("active");
+                    last_active = $(this).parent();
+                    return false;
+                });
+
+                $('.table thead tr th a').live("click", function(event){
+                    var url = this.href;
+                    $.get(
+                            url,
+                            function (data) {
+                                $('#content_wrap').html(data);
+                            }
+                    );
+                    return false;
+                });
+
+                $('#crd_edit').live("click",function(event){
+                    var url = this.href;
+                    $.get(
+                            url,
+                            function(data) {
+                                $('#content_wrap').html(data);
+//                                console.log(data);
+                            }
+                    );
+                    return false;
+                });
+
+                $('#back_one').live("click",function(event){
+                    var url = this.href;
+                    $.get(
+                            url,
+                            function(data) {
+                                $('#content_wrap').html(data);
+                            }
+                    );
+                    return false;
+                });
+
+                $('#btn_new').live("click",function(event){
+                    var url = this.href;
+                    $.get(
+                            url,
+                            function(data) {
+                                $('#content_wrap').html(data);
+                                $('input:submit').remove();
+                                $('input#sx__id').hide();
+                                $('<button>').attr({
+                                    type:'submit',
+                                    id:'submit',
+                                    name:'submit',
+                                    class:'btn btn-primary'
+                                }).html('Save').appendTo('form');
+                            }
+                    );
+                    return false;
+                });
+
+                $('.crd_new > form').live("submit", function(){
+                    var action = this.action;
+                    $.post(
+                            action,
+                            $(this).serialize(),
+                            function(data) {
+                                console.log(data);
+                            }
+                    )
+                    return false;
+                })
+            })
+        </script>
     </body>
 </html>

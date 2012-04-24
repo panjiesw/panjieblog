@@ -1,0 +1,8 @@
+{% macro sidebar() %}
+    <ul class="nav nav-list">
+        <li class="nav-header">Administration</li>
+        {% for model in models %}
+        <li><a class="sidelink" id="{{ model }}" href="{{ model.lower() }}s">{{ model }}s</a></li>
+        {% endfor %}
+    </ul>
+{% endmacro %}

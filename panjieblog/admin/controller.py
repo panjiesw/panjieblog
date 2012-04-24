@@ -8,7 +8,7 @@ from tg.decorators import with_trailing_slash, override_template, expose
 from tg.exceptions import HTTPNotFound
 from tg import config as tg_config
 
-from tgext.crud import CrudRestController
+from panjieblog.crud.controller import CrudRestController
 from config import AdminConfig
 from repoze.what.predicates import in_group
 
@@ -39,7 +39,7 @@ class AdminController(TGController):
 			self.custom_template = True
 		else:
 			default_renderer = getattr(tg_config, 'default_renderer', 'genshi')
-			if default_renderer not in ['genshi', 'mako']:
+			if default_renderer not in ['genshi', 'mako', 'jinja']:
 				if 'genshi' in tg_config.renderers:
 					default_renderer = 'genshi'
 				elif 'mako' in tg_config.renderers:
@@ -55,7 +55,6 @@ class AdminController(TGController):
 	@with_trailing_slash
 	@expose('/admin/index.html')
 	def index(self):
-
 		#overrides the template for this method
 		original_index_template = self.index.decoration.engines['text/html']
 		new_engine = self.default_index_template.split(':')

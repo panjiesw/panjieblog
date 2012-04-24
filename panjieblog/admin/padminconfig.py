@@ -7,16 +7,8 @@ from config import AdminConfig, CrudRestControllerConfig
 from sprox.fillerbase import EditFormFiller
 from sprox.formbase import FilteringSchema
 from formencode.validators import FieldsMatch
-
-try:
-	from tw2.forms import TextField, PasswordField
-except:
-	from tw.forms import TextField, PasswordField
-
-try:
-	from tgext.crud.utils import SortableTableBase as TableBase
-except:
-	from sprox.tablebase import TableBase
+from tw2.forms import TextField, PasswordField
+from tgext.crud.utils import SortableTableBase as TableBase
 
 from sprox.fillerbase import TableFiller
 from sprox.formbase import AddRecordForm, EditableForm
@@ -42,6 +34,15 @@ class UserControllerConfig(CrudRestControllerConfig):
 			class MyTableFiller(TableFiller):
 				__entity__ = self.model
 				__omit_fields__ = ['_password', password_field]
+				def __actions__(self, obj):
+					primary_fields = self.__provider__.get_primary_fields(self.__entity__)
+					pklist = 'users/'+'/'.join(map(lambda x: str(getattr(obj, x)), primary_fields))
+					value = '<a id="crd_edit" class="btn btn-warning" href="'+pklist+'/edit" style="text-decoration:none">edit</a>'\
+                   '<form style="display:inline; margin-left:10px;" method="POST" action="'+pklist+'">'\
+                   '<input type="hidden" name="_method" value="DELETE" />'\
+                   '<input class="btn btn-danger" onclick="return confirm(\'Are you sure?\');" value="delete" type="submit" />'\
+                   '</form>'
+					return value;
 			self.table_filler_type = MyTableFiller
 
 		if hasattr(TextField, 'req'):
@@ -95,7 +96,7 @@ class UserControllerConfig(CrudRestControllerConfig):
 
 	class defaultCrudRestController(CrudRestController):
 
-		@expose('tgext.crud.templates.edit')
+		@expose('/crud/edit.html')
 		def edit(self, *args, **kw):
 			return CrudRestController.edit(self, *args, **kw)
 
@@ -130,6 +131,15 @@ class GroupControllerConfig(CrudRestControllerConfig):
 		class GroupTableFiller(TableFiller):
 			__model__ = self.model
 			__limit_fields__ = [group_id_field, group_name_field, 'permissions']
+			def __actions__(self, obj):
+				primary_fields = self.__provider__.get_primary_fields(self.__entity__)
+				pklist = '/'.join(map(lambda x: str(getattr(obj, x)), primary_fields))
+				value = '<a id="crd_edit" class="btn btn-warning" href="'+pklist+'/edit" style="text-decoration:none">edit</a>'\
+               '<form style="display:inline; margin-left:10px;" method="POST" action="'+pklist+'">'\
+				 '<input type="hidden" name="_method" value="DELETE" />'\
+				 '<input class="btn btn-danger" onclick="return confirm(\'Are you sure?\');" value="delete" type="submit" />'\
+				 '</form>'
+				return value;
 		self.table_filler_type = GroupTableFiller
 
 		class GroupNewForm(AddRecordForm):
@@ -159,6 +169,15 @@ class PermissionControllerConfig(CrudRestControllerConfig):
 		class PermissionTableFiller(TableFiller):
 			__model__ = self.model
 			__limit_fields__ = [permission_id_field, permission_name_field, permission_description_field, 'groups']
+			def __actions__(self, obj):
+				primary_fields = self.__provider__.get_primary_fields(self.__entity__)
+				pklist = '/'.join(map(lambda x: str(getattr(obj, x)), primary_fields))
+				value = '<a id="crd_edit" class="btn btn-warning" href="'+pklist+'/edit" style="text-decoration:none">edit</a>'\
+               '<form style="display:inline; margin-left:10px;" method="POST" action="'+pklist+'">'\
+               '<input type="hidden" name="_method" value="DELETE" />'\
+               '<input class="btn btn-danger" onclick="return confirm(\'Are you sure?\');" value="delete" type="submit" />'\
+               '</form>'
+				return value;
 		self.table_filler_type = PermissionTableFiller
 
 		class PermissionNewForm(AddRecordForm):

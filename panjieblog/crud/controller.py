@@ -1,14 +1,15 @@
 """
 """
 __author__ = 'panjiesw'
+import logging
+log = logging.getLogger('PSW.CRUD')
 import tg
 from tg import expose, flash, redirect, tmpl_context, request
 from tg.decorators import without_trailing_slash, with_trailing_slash
 from tg.controllers import RestController
 
 from tgext.crud.decorators import registered_validate, register_validators, catch_errors
-from tgext.crud.utils import get_table_headers
-from tgext.crud.utils import create_setter, set_table_filler_getter, SortableTableBase
+from tgext.crud.utils import get_table_headers, create_setter, set_table_filler_getter, SortableTableBase
 from sprox.providerselector import ProviderTypeSelector
 from sprox.fillerbase import TableFiller
 from sprox.formbase import AddRecordForm, EditableForm
@@ -197,7 +198,7 @@ class CrudRestController(RestController):
 			register_validators(self, 'put', self.edit_form)
 
 	@with_trailing_slash
-	@expose('tgext.crud.templates.get_all')
+	@expose('/crud/get_all.html')
 	@expose('json')
 	@paginate('value_list', items_per_page=7)
 	def get_all(self, *args, **kw):
@@ -219,7 +220,7 @@ class CrudRestController(RestController):
 			mount_point=self._mount_point(),
 			headers=headers)
 
-	@expose('tgext.crud.templates.get_one')
+#	@expose('tgext.crud.templates.get_one')
 	@expose('json')
 	def get_one(self, *args, **kw):
 		"""get one record, returns HTML or json"""
@@ -232,7 +233,7 @@ class CrudRestController(RestController):
 		value = self.edit_filler.get_value(kw)
 		return dict(value=value,model=self.model.__name__)
 
-	@expose('tgext.crud.templates.edit')
+	@expose('json')
 	def edit(self, *args, **kw):
 		"""Display a page to edit the record."""
 		tmpl_context.widget = self.edit_form
@@ -242,10 +243,11 @@ class CrudRestController(RestController):
 			kw[pk] = args[i]
 		value = self.edit_filler.get_value(kw)
 		value['_method'] = 'PUT'
+#		return value
 		return dict(value=value, model=self.model.__name__, pk_count=len(pks))
 
 	@without_trailing_slash
-	@expose('tgext.crud.templates.new')
+	@expose('/crud/new.html')
 	def new(self, *args, **kw):
 		"""Display a page to show a new record."""
 		tmpl_context.widget = self.new_form
@@ -256,7 +258,8 @@ class CrudRestController(RestController):
 	@registered_validate(error_handler=new)
 	def post(self, *args, **kw):
 		self.provider.create(self.model, params=kw)
-		raise redirect('./', params=self._kept_params())
+		return dict(value=kw)
+#		raise redirect('./', params=self._kept_params())
 
 	@expose()
 	@registered_validate(error_handler=edit)
@@ -283,7 +286,7 @@ class CrudRestController(RestController):
 		for i, arg in enumerate(args):
 			d[pks[i]] = arg
 		self.provider.delete(self.model, d)
-		redirect('./' + '../' * (len(pks) - 1), params=self._kept_params())
+#		redirect('./' + '../' * (len(pks) - 1), params=self._kept_params())
 
 	@expose('tgext.crud.templates.get_delete')
 	def get_delete(self, *args, **kw):

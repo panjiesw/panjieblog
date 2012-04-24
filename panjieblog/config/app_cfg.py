@@ -30,8 +30,9 @@ base_config.renderers.append('json')
 #Set the default renderer
 base_config.default_renderer = 'jinja'
 base_config.renderers.append('jinja')
+base_config.renderers.append('mako')
 base_config.jinja_extensions = ['jinja2.ext.with_']
-base_config.use_dotted_templatenames = False
+#base_config.use_dotted_templatenames = False
 #Configure the base Ming Setup
 base_config.use_ming = True
 base_config.use_sqlalchemy=False

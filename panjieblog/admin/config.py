@@ -1,13 +1,8 @@
 __author__ = 'panjiesw'
 
 import inspect
-from tgext.crud import CrudRestController
-
-try:
-	from tgext.crud.utils import SortableTableBase as TableBase
-except:
-	from sprox.tablebase import TableBase
-
+from panjieblog.crud.controller import CrudRestController
+from tgext.crud.utils import SortableTableBase as TableBase
 from sprox.fillerbase import TableFiller
 from sprox.formbase import AddRecordForm, EditableForm
 from sprox.fillerbase import RecordFiller, AddFormFiller

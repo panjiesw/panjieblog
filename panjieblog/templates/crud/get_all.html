@@ -1,0 +1,5 @@
+<h1>{{ model }} Management</h1>
+<a id="btn_new" class="btn btn-primary" href="{{ model.lower() }}s/new"><i class="icon-plus icon-white"></i> New {{ model }}</a>
+<div class="crd_table">
+    {{ tmpl_context.widget(value=value_list, action=mount_point+'.json') }}
+</div>

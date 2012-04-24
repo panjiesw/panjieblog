@@ -1,0 +1,7 @@
+<h1>New {{ model }}</h1>
+<div class="crd_new">
+    {{ tmpl_context.widget(value=value, action= model.lower()+'s/') }}
+</div>
+<div id="backcontent">
+    <a id="back_one" class="btn" href="{{ model.lower() }}s">&laquo; back to {{ model }}s list</a>
+</div>
