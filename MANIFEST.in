@@ -1,0 +1,4 @@
+recursive-include panjieblog/public *
+include panjieblog/public/favicon.ico
+recursive-include panjieblog/i18n *
+recursive-include panjieblog/templates *

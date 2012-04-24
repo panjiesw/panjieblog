@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta content="text/html; charset=UTF-8" http-equiv="Content-Type"
+              content="{{ response.content_type }}; charset={{ response.charset }}"/>
+        <meta name="description" content="Login to access Administration System"/>
+        <meta name="author" content="PanjieSW @panjiesw"/>
+        <title>Login PanjieSW Blog</title>
+        <link rel="stylesheet" type="text/css" media="screen" href="{{ tg.url('/css/bootstrap.min.css') }}" />
+        <link rel="stylesheet" type="text/css" media="screen" href="{{ tg.url('/css/bootstrap-responsive.min.css') }}" />
+        <style type="text/css">
+            html {
+                width: 100%;
+                height: 100%;
+            }
+
+            body {
+                width: 100%;
+                height: 100%;
+                background: rgb(0,0,0); /* Old browsers */
+                /* IE9 SVG, needs conditional override of 'filter' to 'none' */
+                background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzAwMDAwMCIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiM0NTQ4NGQiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
+                background: -moz-linear-gradient(top, rgba(0,0,0,1) 0%, rgba(69,72,77,1) 100%); /* FF3.6+ */
+                background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(0,0,0,1)), color-stop(100%,rgba(69,72,77,1))); /* Chrome,Safari4+ */
+                background: -webkit-linear-gradient(top, rgba(0,0,0,1) 0%,rgba(69,72,77,1) 100%); /* Chrome10+,Safari5.1+ */
+                background: -o-linear-gradient(top, rgba(0,0,0,1) 0%,rgba(69,72,77,1) 100%); /* Opera 11.10+ */
+                background: -ms-linear-gradient(top, rgba(0,0,0,1) 0%,rgba(69,72,77,1) 100%); /* IE10+ */
+                background: linear-gradient(top, rgba(0,0,0,1) 0%,rgba(69,72,77,1) 100%); /* W3C */
+                filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#000000', endColorstr='#45484d',GradientType=0 ); /* IE6-8 */
+            }
+
+            .form-container, .msg-container {
+                margin-top: 100px;
+                /*background: rgb(255,255,255);*/
+                -webkit-border-radius: 5px;
+                -moz-border-radius: 5px;
+                border-radius: 5px;
+                -webkit-box-shadow: 3px 3px 50px 0px #636363;
+                -moz-box-shadow: 3px 3px 50px 0px #636363;
+                box-shadow: 3px 3px 50px 0px #636363;
+            }
+
+            .msg-container {
+                padding: 10px 19px;
+                margin-bottom: -95px;
+            }
+
+            .alert .close {
+                right: -10px;
+            }
+
+            hr {
+                margin: 10px 0;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="row">
+            {% with flash=tg.flash_obj.render('flash', use_js=False) %}
+                {% if flash %}
+                    <div class="msg-container alert span3 offset5">
+                        <a class="close" data-dismiss="alert">×</a>
+                        {{ flash }}
+                    </div>
+                {% endif %}
+            {% endwith %}
+            <div class="container well span3 offset5 form-container">
+                <h3 style="text-align: center">Login</h3>
+                <hr>
+                <form action="{{ tg.url('/login_handler', params=dict(came_from=came_from.encode('utf-8'), __logins=login_counter.encode('utf-8'))) }}" method="post" accept-charset="UTF-8" class="loginfields">
+                    <label for="loginusername">Username:</label><input type="text" id="loginusername" name="login" class="text"/><br/>
+                    <label for="loginpassword">Password:</label><input type="password" id="loginpassword" name="password" class="text"/>
+                    <label class="checkbox"><input type="checkbox" id="loginremember" name="remember" value="2252000"/>
+                        remember me <button class="btn  pull-right" type="submit" id="submit">Login</button>
+                    </label>
+                </form>
+            </div>
+            <div class="span3 offset5">
+                <a href="{{ tg.url('/') }}">&laquo back to home</a>
+            </div>
+        </div>
+        <script type="text/javascript" src="{{ tg.url('/javascript/jquery-1.7.1.min.js') }}" ></script>
+        <script type="text/javascript" src="{{ tg.url('/javascript/bootstrap.min.js') }}" ></script>
+    </body>
+</html>

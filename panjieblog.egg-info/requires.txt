@@ -1,0 +1,9 @@
+TurboGears2 >= 2.2.0rc1
+Jinja2
+tgming
+repoze.what >= 1.0.8
+repoze.who-friendlyform >= 1.0.4
+repoze.who==1.0.19
+tgext.admin >= 0.3.11
+tw2.forms
+sprox >= 0.7dev
