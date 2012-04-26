@@ -1,14 +1,18 @@
+from pylons import tmpl_context
+
 __author__ = 'panjiesw'
 
 from tg import expose, redirect
 from panjieblog.crud.controller import CrudRestController
+from panjieblog.widgets.form import CustomForm, CustomAddRercordForm
 from tgext.crud.decorators import registered_validate
 from config import AdminConfig, CrudRestControllerConfig
 from sprox.fillerbase import EditFormFiller
 from sprox.formbase import FilteringSchema
 from formencode.validators import FieldsMatch
-from tw2.forms import TextField, PasswordField
+from tw2.forms import TextField, PasswordField, SingleSelectField
 from tgext.crud.utils import SortableTableBase as TableBase
+from panjieblog import model
 
 from sprox.fillerbase import TableFiller
 from sprox.formbase import AddRecordForm, EditableForm
@@ -22,6 +26,7 @@ class UserControllerConfig(CrudRestControllerConfig):
 		email_field        = translations.get('email_address', 'email_address')
 		password_field     = translations.get('password',      'password')
 		display_name_field = translations.get('display_name',  'display_name')
+		group_name_field     = translations.get('group_name', 'group_name')
 
 		if not getattr(self, 'table_type', None):
 			class Table(TableBase):
@@ -37,7 +42,7 @@ class UserControllerConfig(CrudRestControllerConfig):
 				def __actions__(self, obj):
 					primary_fields = self.__provider__.get_primary_fields(self.__entity__)
 					pklist = 'users/'+'/'.join(map(lambda x: str(getattr(obj, x)), primary_fields))
-					value = '<a id="crd_edit" class="btn btn-warning" href="'+pklist+'/edit" style="text-decoration:none">edit</a>'\
+					value = '<a id="btn_edit" class="btn btn-warning" href="'+pklist+'/edit" style="text-decoration:none">edit</a>'\
                    '<form style="display:inline; margin-left:10px;" method="POST" action="'+pklist+'">'\
                    '<input type="hidden" name="_method" value="DELETE" />'\
                    '<input class="btn btn-danger" onclick="return confirm(\'Are you sure?\');" value="delete" type="submit" />'\
@@ -55,7 +60,7 @@ class UserControllerConfig(CrudRestControllerConfig):
 					          'Passwords do not match'})])
 
 		if not getattr(self, 'edit_form_type', None):
-			class EditForm(EditableForm):
+			class EditForm(CustomForm):
 				__entity__ = self.model
 				__require_fields__     = [user_name_field, email_field]
 				__omit_fields__        = ['created', '_password', '_groups']
@@ -82,12 +87,13 @@ class UserControllerConfig(CrudRestControllerConfig):
 			self.edit_filler_type = UserEditFormFiller
 
 		if not getattr(self, 'new_form_type', None):
-			class NewForm(AddRecordForm):
+			class NewForm(CustomAddRercordForm):
 				__entity__ = self.model
-				__require_fields__     = [user_name_field, email_field]
-				__omit_fields__        = [password_field, 'created', '_password', '_groups']
+				__require_fields__     = [user_name_field, email_field, password_field]
+				__omit_fields__        = ['created', '_password', '_groups']
 				__hidden_fields__      = [user_id_field]
-				__field_order__        = [user_name_field, email_field, display_name_field, 'groups']
+				__field_order__        = [user_name_field, email_field, password_field, display_name_field, group_name_field]
+
 			if email_field is not None:
 				setattr(NewForm, email_field, TextField)
 			if display_name_field is not None:
@@ -98,7 +104,16 @@ class UserControllerConfig(CrudRestControllerConfig):
 
 		@expose('/crud/edit.html')
 		def edit(self, *args, **kw):
-			return CrudRestController.edit(self, *args, **kw)
+			tmpl_context.widget = self.edit_form
+			pks = self.provider.get_primary_fields(self.model)
+			if len(args) > 0:
+				kw = {}
+				for i, pk in  enumerate(pks):
+					kw[pk] = args[i]
+			value = self.edit_filler.get_value(kw)
+			value['_method'] = 'PUT'
+			#		return value
+			return dict(value=value, model=self.model.__name__, pk_count=len(pks))
 
 		@expose()
 		@registered_validate(error_handler=edit)
@@ -113,7 +128,7 @@ class UserControllerConfig(CrudRestControllerConfig):
 					kw[pk] = args[i]
 
 			self.provider.update(self.model, params=kw)
-			redirect('../')
+			return "success"
 
 
 
@@ -133,8 +148,8 @@ class GroupControllerConfig(CrudRestControllerConfig):
 			__limit_fields__ = [group_id_field, group_name_field, 'permissions']
 			def __actions__(self, obj):
 				primary_fields = self.__provider__.get_primary_fields(self.__entity__)
-				pklist = '/'.join(map(lambda x: str(getattr(obj, x)), primary_fields))
-				value = '<a id="crd_edit" class="btn btn-warning" href="'+pklist+'/edit" style="text-decoration:none">edit</a>'\
+				pklist = 'groups/'+'/'.join(map(lambda x: str(getattr(obj, x)), primary_fields))
+				value = '<a id="btn_edit" class="btn btn-warning" href="'+pklist+'/edit" style="text-decoration:none">edit</a>'\
                '<form style="display:inline; margin-left:10px;" method="POST" action="'+pklist+'">'\
 				 '<input type="hidden" name="_method" value="DELETE" />'\
 				 '<input class="btn btn-danger" onclick="return confirm(\'Are you sure?\');" value="delete" type="submit" />'\
@@ -171,8 +186,8 @@ class PermissionControllerConfig(CrudRestControllerConfig):
 			__limit_fields__ = [permission_id_field, permission_name_field, permission_description_field, 'groups']
 			def __actions__(self, obj):
 				primary_fields = self.__provider__.get_primary_fields(self.__entity__)
-				pklist = '/'.join(map(lambda x: str(getattr(obj, x)), primary_fields))
-				value = '<a id="crd_edit" class="btn btn-warning" href="'+pklist+'/edit" style="text-decoration:none">edit</a>'\
+				pklist = 'permissions/'+'/'.join(map(lambda x: str(getattr(obj, x)), primary_fields))
+				value = '<a id="btn_edit" class="btn btn-warning" href="'+pklist+'/edit" style="text-decoration:none">edit</a>'\
                '<form style="display:inline; margin-left:10px;" method="POST" action="'+pklist+'">'\
                '<input type="hidden" name="_method" value="DELETE" />'\
                '<input class="btn btn-danger" onclick="return confirm(\'Are you sure?\');" value="delete" type="submit" />'\
