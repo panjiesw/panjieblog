@@ -4,7 +4,7 @@ __author__ = 'panjiesw'
 
 from tg import expose, redirect
 from panjieblog.crud.controller import CrudRestController
-from panjieblog.widgets.form import CustomForm, CustomAddRercordForm
+from panjieblog.widgets.form import CustomForm, CustomAddRecordForm
 from tgext.crud.decorators import registered_validate
 from config import AdminConfig, CrudRestControllerConfig
 from sprox.fillerbase import EditFormFiller
@@ -87,7 +87,7 @@ class UserControllerConfig(CrudRestControllerConfig):
 			self.edit_filler_type = UserEditFormFiller
 
 		if not getattr(self, 'new_form_type', None):
-			class NewForm(CustomAddRercordForm):
+			class NewForm(CustomAddRecordForm):
 				__entity__ = self.model
 				__require_fields__     = [user_name_field, email_field, password_field]
 				__omit_fields__        = ['created', '_password', '_groups']
@@ -157,13 +157,13 @@ class GroupControllerConfig(CrudRestControllerConfig):
 				return value;
 		self.table_filler_type = GroupTableFiller
 
-		class GroupNewForm(AddRecordForm):
+		class GroupNewForm(CustomAddRecordForm):
 			__model__ = self.model
 			__limit_fields__ = [group_name_field, 'permissions']
 			__field_order__ = [group_name_field, 'permissions']
 		self.new_form_type = GroupNewForm
 
-		class GroupEditForm(EditableForm):
+		class GroupEditForm(CustomForm):
 			__model__ = self.model
 			__limit_fields__ = [group_id_field, group_name_field, 'permissions']
 			__field_order__ = [group_id_field, group_name_field, 'permissions']
@@ -195,12 +195,12 @@ class PermissionControllerConfig(CrudRestControllerConfig):
 				return value;
 		self.table_filler_type = PermissionTableFiller
 
-		class PermissionNewForm(AddRecordForm):
+		class PermissionNewForm(CustomAddRecordForm):
 			__model__ = self.model
 			__limit_fields__ = [permission_name_field, permission_description_field, 'groups']
 		self.new_form_type = PermissionNewForm
 
-		class PermissionEditForm(EditableForm):
+		class PermissionEditForm(CustomForm):
 			__model__ = self.model
 			__limit_fields__ = [permission_name_field, permission_description_field,'groups']
 		self.edit_form_type = PermissionEditForm
@@ -208,6 +208,9 @@ class PermissionControllerConfig(CrudRestControllerConfig):
 		class PermissionEditFiller(RecordFiller):
 			__model__ = self.model
 		self.edit_filler_type = PermissionEditFiller
+
+
+
 
 class PJAdminConfig(AdminConfig):
 	default_to_dojo = False

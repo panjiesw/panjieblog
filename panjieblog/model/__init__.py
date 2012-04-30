@@ -14,3 +14,4 @@ def init_model(engine):
 
 # Import your model modules here.
 from panjieblog.model.auth import User, Group, Permission
+from panjieblog.model.blog import Article, Page

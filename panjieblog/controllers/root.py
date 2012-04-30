@@ -8,6 +8,7 @@ from repoze.what import predicates
 from panjieblog.controllers.secure import SecureController
 from panjieblog.admin.mongo import PJMongoAdminConfig
 from panjieblog.admin.controller import AdminController
+from datetime import datetime
 #from tgext.admin.mongo import TGMongoAdminConfig
 #from tgext.admin.controller import AdminController
 
@@ -35,43 +36,24 @@ class RootController(BaseController):
 	admin = AdminController(model, None, config_type=PJMongoAdminConfig)
 
 	error = ErrorController()
-
 	@expose('index.html')
-	def index(self):
+	def index(self, previous=None):
 		"""Handle the front-page."""
-		return dict(page='index')
+		cat = model.Page.categories()
+		allposts = None
+		last_date_string = None
+		if not previous:
+			allposts = model.Article.all_posts()
+		else:
+			allposts = model.Article.all_posts(datetime.strptime(previous,"%Y-%m-%d"))
+		if len(allposts) >= 5 :
+			last_date_string = allposts[4].created_on.strftime("%Y-%m-%d")
+		return dict(page='index', categories=cat, posts=allposts, next_ent=last_date_string)
 
 	@expose('about.html')
 	def about(self):
 		"""Handle the 'about' page."""
 		return dict(page='about')
-
-	@expose('environ.html')
-	def environ(self):
-		"""This method showcases TG's access to the wsgi environment."""
-		return dict(environment=request.environ)
-
-	@expose('data.html')
-	@expose('json')
-	def data(self, **kw):
-		"""This method showcases how you can use the same controller for a data page and a display page"""
-		return dict(params=kw)
-	@expose('authentication.html')
-	def auth(self):
-		"""Display some information about auth* on this application."""
-		return dict(page='auth')
-
-	@expose('index.html')
-	@require(predicates.has_permission('manage', msg=l_('Only for managers')))
-	def manage_permission_only(self, **kw):
-		"""Illustrate how a page for managers only works."""
-		return dict(page='managers stuff')
-
-	@expose('index.html')
-	@require(predicates.is_user('editor', msg=l_('Only for the editor')))
-	def editor_user_only(self, **kw):
-		"""Illustrate how a page exclusive for the editor works."""
-		return dict(page='editor stuff')
 
 	@expose('login.html')
 	def login(self, came_from=lurl('/')):
@@ -106,3 +88,15 @@ class RootController(BaseController):
 		"""
 		flash(_('We hope to see you soon!'))
 		redirect(came_from)
+
+
+class BlogControllerEntry(object):
+	def __init__(self, dt, name):
+		self.entry = model.Article.query.get(created_on=dt, name=name)
+		self.cat = model.Page.categories()
+
+	@expose('post.html')
+	def index(self):
+		return dict(page='index', categories=self.cat, post=self.entry)
+
+

@@ -43,10 +43,10 @@ class CustomForm(FormBase):
 	__check_if_unique__ = False
 
 
-class CustomAddRercordForm(FormBase):
+class CustomAddRecordForm(FormBase):
 	__base_widget_type__ = CustomFormWidget
 	def _do_init_attrs(self):
-		super(CustomAddRercordForm, self)._do_init_attrs()
+		super(CustomAddRecordForm, self)._do_init_attrs()
 
 		if not self.__omit_fields__:
 			pkey = self.__provider__.get_primary_field(self.__entity__)
