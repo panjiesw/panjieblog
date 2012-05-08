@@ -1,4 +1,5 @@
 from pylons import tmpl_context
+from tg.decorators import without_trailing_slash
 
 __author__ = 'panjiesw'
 
@@ -10,12 +11,13 @@ from config import AdminConfig, CrudRestControllerConfig
 from sprox.fillerbase import EditFormFiller
 from sprox.formbase import FilteringSchema
 from formencode.validators import FieldsMatch
-from tw2.forms import TextField, PasswordField, SingleSelectField
+from tw2.forms import TextField, PasswordField, TextArea, SingleSelectField
 from tgext.crud.utils import SortableTableBase as TableBase
 from panjieblog import model
 
 from sprox.fillerbase import TableFiller
 from sprox.formbase import AddRecordForm, EditableForm
+from sprox.widgets.tw2widgets.widgets import PropertySingleSelectField
 
 from sprox.fillerbase import RecordFiller, AddFormFiller
 
@@ -47,7 +49,7 @@ class UserControllerConfig(CrudRestControllerConfig):
                    '<input type="hidden" name="_method" value="DELETE" />'\
                    '<input class="btn btn-danger" onclick="return confirm(\'Are you sure?\');" value="delete" type="submit" />'\
                    '</form>'
-					return value;
+					return value
 			self.table_filler_type = MyTableFiller
 
 		if hasattr(TextField, 'req'):
@@ -154,7 +156,7 @@ class GroupControllerConfig(CrudRestControllerConfig):
 				 '<input type="hidden" name="_method" value="DELETE" />'\
 				 '<input class="btn btn-danger" onclick="return confirm(\'Are you sure?\');" value="delete" type="submit" />'\
 				 '</form>'
-				return value;
+				return value
 		self.table_filler_type = GroupTableFiller
 
 		class GroupNewForm(CustomAddRecordForm):
@@ -192,7 +194,7 @@ class PermissionControllerConfig(CrudRestControllerConfig):
                '<input type="hidden" name="_method" value="DELETE" />'\
                '<input class="btn btn-danger" onclick="return confirm(\'Are you sure?\');" value="delete" type="submit" />'\
                '</form>'
-				return value;
+				return value
 		self.table_filler_type = PermissionTableFiller
 
 		class PermissionNewForm(CustomAddRecordForm):
@@ -208,6 +210,79 @@ class PermissionControllerConfig(CrudRestControllerConfig):
 		class PermissionEditFiller(RecordFiller):
 			__model__ = self.model
 		self.edit_filler_type = PermissionEditFiller
+
+
+
+class ArticleControllerConfig(CrudRestControllerConfig):
+	def _do_init_with_translations(self, translations):
+		article_id_field = translations.get('article_id', 'article_id')
+		article_name_field = translations.get('article_name', 'name')
+		article_title_field = translations.get('article_title', 'title')
+		article_text_field = translations.get('article_text', 'text')
+		article_category_field = translations.get('article_category', 'category')
+
+		class ArticleTable(TableBase):
+			__model__ = self.model
+			__omit_fields__ = ['_category',article_id_field,'_user',article_text_field]
+			__url__ = '../articles.json'
+		self.table_type = ArticleTable
+
+		class ArticleTableFiller(TableFiller):
+			__model__ = self.model
+			__omit_fields__ = ['_category',article_id_field,'_user',article_text_field]
+			def __actions__(self, obj):
+				primary_fields = self.__provider__.get_primary_fields(self.__entity__)
+				pklist = 'articles/'+'/'.join(map(lambda x: str(getattr(obj, x)), primary_fields))
+				value = '<a id="btn_edit" class="btn btn-warning" href="'+pklist+'/edit" style="text-decoration:none">edit</a>'\
+                         '<form style="display:inline; margin-left:10px;" method="POST" action="'+pklist+'">'\
+                         '<input type="hidden" name="_method" value="DELETE" />'\
+                         '<input class="btn btn-danger" onclick="return confirm(\'Are you sure?\');" value="delete" type="submit" />'\
+                         '</form>'
+				return value
+		self.table_filler_type = ArticleTableFiller
+
+		class ArticleEditForm(CustomForm):
+			__model__ = self.model
+			__require_fields__ = [article_name_field, article_title_field, article_text_field]
+			__omit_fields__ = ['_user', 'created_on']
+			__hidden_fields = [article_id_field]
+			__field_order__ = [article_id_field, article_name_field, article_title_field, article_text_field]
+		self.edit_form_type = ArticleEditForm
+
+		class ArticleEditFormFiller(RecordFiller):
+			__model__ = self.model
+			def get_value(self, *args, **kw):
+				v = super(ArticleEditFormFiller, self).get_value(*args, **kw)
+				return v
+		self.edit_filler_type = ArticleEditFormFiller
+
+		class ArticleNewForm(CustomAddRecordForm):
+			__model__ = self.model
+			__omit_fields__ = ['_user', 'created_on', '_category']
+			__hidden_fields = [article_id_field]
+			__field_order__ = [article_id_field, article_name_field, article_title_field, 'category', article_text_field, 'tags', 'user']
+		self.new_form_type = ArticleNewForm
+
+	class defaultCrudRestController(CrudRestController):
+
+		@without_trailing_slash
+		@expose('/crud/new.html')
+		def new(self, *args, **kw):
+			"""Display a page to show a new record."""
+			tmpl_context.widget = self.new_form
+			return dict(value=kw, model=self.model.__name__)
+
+		@expose()
+		@registered_validate(error_handler=new)
+		def post(self, *args, **kw):
+			tgs = kw.get('tags',[])
+			if not len(tgs):
+				kw['tags'] = []
+			else:
+				_tgs = tgs.split(',')
+				kw['tags'] = [_tgs_.strip() for _tgs_ in _tgs]
+			self.provider.create(self.model, params=kw)
+			return dict(value=kw)
 
 
 

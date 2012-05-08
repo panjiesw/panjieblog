@@ -3,7 +3,7 @@ __author__ = 'panjiesw'
 from config import AdminConfig
 from controller import AdminController
 import inspect
-from padminconfig import UserControllerConfig, GroupControllerConfig, PermissionControllerConfig
+from padminconfig import UserControllerConfig, GroupControllerConfig, PermissionControllerConfig, ArticleControllerConfig
 
 class MongoAdminConfig(AdminConfig):
 	def __init__(self,models,translations = None):
@@ -38,12 +38,14 @@ class PJMongoAdminConfig(MongoAdminConfig):
 	user       = UserControllerConfig
 	group      = GroupControllerConfig
 	permission = PermissionControllerConfig
+	article    = ArticleControllerConfig
 
 	def __init__(self, models, translations=None):
 		if not translations:
 			translations =  {'group_id':'_id',
 			                 'user_id':'_id',
-			                 'permission_id':'_id'}
+			                 'permission_id':'_id',
+			                 'article_id':'_id'}
 
 		super(MongoAdminConfig, self).__init__(models, translations)
 
